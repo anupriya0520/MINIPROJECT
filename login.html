@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<header>
+    <div class="nav">
+        <div class="brand">
+            <img src="https://img.atom.com/story_images/visual_images/1654453677-StackSkill.png?class=show">
+            <h2>SkillStack</h2>
+        </div>
+    </div>
+</header>
+
+<div class="auth-container">
+    <div class="card">
+    <h3>Welcome Back</h3>
+    <form autocomplete="on" onsubmit="login(); return false;">
+        <input id="email" type="email" placeholder="Email" autocomplete="username" required>
+        <input id="password" type="password" placeholder="Password" autocomplete="off" required>
+        <button type="submit">Login</button>
+        <p>Don't have an account? <a href="register.html">Register</a></p>
+    </form>
+</div>
+
+</div>
+<div id="adminChoiceModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h3>Welcome Admin!</h3>
+        <p>Where do you want to go?</p>
+        <button id="goAdminBtn">Login As Admin</button>
+        <button id="goUserBtn">Login As User</button>
+    </div>
+</div>
+<!-- Global Popup -->
+<div id="popup" class="popup hidden">
+  <div class="popup-box">
+    <p id="popupMessage"></p>
+    <button onclick="closePopup()">OK</button>
+  </div>
+</div>
+
+<script src="./api.js"></script>
+<script>
+async function login() {
+    const res = await fetch(API_BASE + "/Auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            email: email.value,
+            password: password.value
+        })
+    });
+
+    if (!res.ok) {
+showPopup("Invalid email or password");
+        return;
+    }
+
+    const data = await res.json();
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("role", data.role);
+
+    if (data.role === "Admin") {
+        // Show custom modal
+        const modal = document.getElementById("adminChoiceModal");
+        modal.style.display = "flex";
+
+        document.getElementById("goAdminBtn").onclick = () => {
+            modal.style.display = "none";
+            location.href = "admin.html";
+        };
+
+        document.getElementById("goUserBtn").onclick = () => {
+            modal.style.display = "none";
+            location.href = "user.html";
+        };
+    } else {
+        location.href = "user.html";
+    }
+}
+</script>
+</body>
+</html>
